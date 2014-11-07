@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -30,9 +31,6 @@ namespace DatabaseToExcel
                     // to the excel range for that column.
                     for (int i = 0; i < fieldNames.Length; i++)
                     {
-
-
-
                         string[,] clnDataString = new string[dt.Rows.Count,1];
                         int[,] clnDataInt = new int[dt.Rows.Count,1];
                         double[,] clnDataDouble = new double[dt.Rows.Count,1];
@@ -57,18 +55,21 @@ namespace DatabaseToExcel
                                             clnDataInt[j, 0] = Convert.ToInt32(dt.Rows[j][fieldNames[i]]);
                                             break;
                                         case "Double":
+                                        case "Decimal":
                                             clnDataDouble[j, 0] = Convert.ToDouble(dt.Rows[j][fieldNames[i]]);
                                             break;
                                         case "DateTime":
                                             if (fieldNames[i].ToLower().Contains("time"))
                                                 clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortTimeString();
-                                            else if (fieldNames[i].ToLower().Contains("date"))
-                                                clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortDateString();
+                                            //else if (fieldNames[i].ToLower().Contains("date"))
+                                            //    clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortDateString();
                                             else
                                                 clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToString();
 
                                             break;
                                         default:
+                                            //if (dataTypeName != "String" && dataTypeName != "Decimal")
+                                            //    Debug.WriteLine(dataTypeName);
                                             clnDataString[j, 0] = dt.Rows[j][fieldNames[i]].ToString();
                                             break;
                                     }
@@ -136,15 +137,21 @@ namespace DatabaseToExcel
         /// </summary>
         /// <param name="index">Assumes 0 based index</param>
         /// <returns></returns>
-        public static string IndexToExcelColumnName(int index)
+        private static string IndexToExcelColumnName(int index)
         {
-            // index -= 1; //adjust so it matches 0-indexed array rather than 1-indexed column
+            index++;
+            int dividend = index;
+            string columnName = String.Empty;
+            int modulo;
 
-            int quotient = index / 26;
-            if (quotient > 0)
-                return IndexToExcelColumnName(quotient) + chars[index % 26];
-            else
-                return chars[index % 26].ToString();
+            while (dividend > 0)
+            {
+                modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
         }
         
     }

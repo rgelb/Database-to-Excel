@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace DatabaseToExcel
@@ -49,25 +46,15 @@ namespace DatabaseToExcel
 
         private static void CreateExcelFile(AppArgs appArgs, DataSet ds)
         {
-            Excel.Application app = null;
-            Excel.Workbook workbook = null;
-            Excel.Worksheet worksheet = null;
-            Excel.Range workSheet_range = null;
-            object misValue = System.Reflection.Missing.Value;
-
             var sheetNames = new List<string>();
             if (appArgs.sheetFile.Length > 0 && File.Exists(appArgs.sheetFile))
-            {
                 sheetNames = File.ReadAllLines(appArgs.sheetFile).ToList();
-            }
-
 
             try
             {
-                app = new Excel.Application {Visible = false};
-                workbook = app.Workbooks.Add(1);
-                worksheet = (Excel.Worksheet)workbook.Sheets[1];
-                worksheet.Name = "foo";
+                var app = new Excel.Application {Visible = false};
+                var workbook = app.Workbooks.Add(1);
+                Excel.Worksheet worksheet;  //   = (Excel.Worksheet)workbook.Sheets[1];
 
                 for (int i = 0; i < ds.Tables.Count - 1; i++)
                     workbook.Sheets.Add();     
@@ -80,18 +67,17 @@ namespace DatabaseToExcel
                     worksheet.Name = sheetNames[i];
                 }
 
-                List<string> columnNames;
-                DataTable dt;
-
                 // now populate the spreadsheet
                 for (int i = 0; i < ds.Tables.Count; i++)
                 {
-                    columnNames = new List<string>();
-                    dt = ds.Tables[i];
+                    //var columnNames = new List<string>();
+                    DataTable dt = ds.Tables[i];
                     worksheet = (Excel.Worksheet)workbook.Sheets[i + 1];
 
-                    foreach (DataColumn item in dt.Columns)
-                        columnNames.Add(item.ColumnName);
+                    List<string> columnNames = dt.Columns.Cast<DataColumn>().Select(cln => cln.ColumnName).ToList();
+
+                    //foreach (DataColumn item in dt.Columns)
+                    //    columnNames.Add(item.ColumnName);
 
                     Utilities.RenderDataTableOnXlSheet(dt, worksheet, columnNames.ToArray(), columnNames.ToArray());
                 }
