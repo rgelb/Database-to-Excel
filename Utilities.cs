@@ -22,67 +22,78 @@ namespace DatabaseToExcel
                 for (int i = 0; i < columnNames.Length; i++)
                     xlWk.Cells[1, i + 1] = columnNames[i];
 
-                // for each column, create an array and set the array 
-                // to the excel range for that column.
-                for (int i = 0; i < fieldNames.Length; i++)
+
+                if (dt.Rows.Count > 0)
                 {
-                    string[,] clnDataString = new string[dt.Rows.Count, 1];
-                    int[,] clnDataInt = new int[dt.Rows.Count, 1];
-                    double[,] clnDataDouble = new double[dt.Rows.Count, 1];
 
-                    string columnLetter = char.ConvertFromUtf32("A".ToCharArray()[0] + i);
-                    rngExcel = xlWk.get_Range(columnLetter + "2", Missing.Value);
-                    rngExcel = rngExcel.get_Resize(dt.Rows.Count, 1);
-
-                    string dataTypeName = dt.Columns[fieldNames[i]].DataType.Name;
-
-                    for (int j = 0; j < dt.Rows.Count; j++)
+                    // for each column, create an array and set the array 
+                    // to the excel range for that column.
+                    for (int i = 0; i < fieldNames.Length; i++)
                     {
-                        if (fieldNames[i].Length > 0)
-                        {
-                            if (!dt.Rows[j].IsNull(i))
-                            {
-                                switch (dataTypeName)
-                                {
-                                    case "Int32":
-                                        clnDataInt[j, 0] = Convert.ToInt32(dt.Rows[j][fieldNames[i]]);
-                                        break;
-                                    case "Double":
-                                        clnDataDouble[j, 0] = Convert.ToDouble(dt.Rows[j][fieldNames[i]]);
-                                        break;
-                                    case "DateTime":
-                                        if (fieldNames[i].ToLower().Contains("time"))
-                                            clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortTimeString();
-                                        else if (fieldNames[i].ToLower().Contains("date"))
-                                            clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortDateString();
-                                        else
-                                            clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToString();
 
-                                        break;
-                                    default:
-                                        clnDataString[j, 0] = dt.Rows[j][fieldNames[i]].ToString();
-                                        break;
+
+
+                        string[,] clnDataString = new string[dt.Rows.Count,1];
+                        int[,] clnDataInt = new int[dt.Rows.Count,1];
+                        double[,] clnDataDouble = new double[dt.Rows.Count,1];
+
+                        //string columnLetter = char.ConvertFromUtf32("A".ToCharArray()[0] + i);
+                        string columnLetter = IndexToExcelColumnName(i);
+
+                        rngExcel = xlWk.get_Range(columnLetter + "2", Missing.Value);
+                        rngExcel = rngExcel.get_Resize(dt.Rows.Count, 1);
+
+                        string dataTypeName = dt.Columns[fieldNames[i]].DataType.Name;
+
+                        for (int j = 0; j < dt.Rows.Count; j++)
+                        {
+                            if (fieldNames[i].Length > 0)
+                            {
+                                if (!dt.Rows[j].IsNull(i))
+                                {
+                                    switch (dataTypeName)
+                                    {
+                                        case "Int32":
+                                            clnDataInt[j, 0] = Convert.ToInt32(dt.Rows[j][fieldNames[i]]);
+                                            break;
+                                        case "Double":
+                                            clnDataDouble[j, 0] = Convert.ToDouble(dt.Rows[j][fieldNames[i]]);
+                                            break;
+                                        case "DateTime":
+                                            if (fieldNames[i].ToLower().Contains("time"))
+                                                clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortTimeString();
+                                            else if (fieldNames[i].ToLower().Contains("date"))
+                                                clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortDateString();
+                                            else
+                                                clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToString();
+
+                                            break;
+                                        default:
+                                            clnDataString[j, 0] = dt.Rows[j][fieldNames[i]].ToString();
+                                            break;
+                                    }
                                 }
+                                else
+                                    clnDataString[j, 0] = "NULL";
                             }
                             else
-                                clnDataString[j, 0] = "NULL";
+                                clnDataString[j, 0] = string.Empty;
                         }
-                        else
-                            clnDataString[j, 0] = string.Empty;
-                    }
 
-                    // set values in the sheet wholesale.
-                    if (dataTypeName == "Int32")
-                        rngExcel.set_Value(Missing.Value, clnDataInt);
-                    else if (dataTypeName == "Double")
-                        rngExcel.set_Value(Missing.Value, clnDataDouble);
-                    else
-                        rngExcel.set_Value(Missing.Value, clnDataString);
+                        // set values in the sheet wholesale.
+                        if (dataTypeName == "Int32")
+                            rngExcel.set_Value(Missing.Value, clnDataInt);
+                        else if (dataTypeName == "Double")
+                            rngExcel.set_Value(Missing.Value, clnDataDouble);
+                        else
+                            rngExcel.set_Value(Missing.Value, clnDataString);
+                    }
                 }
 
 
                 // figure out the letter of the last column (supports 1 letter column names)
-                string lastColumn = char.ConvertFromUtf32("A".ToCharArray()[0] + columnNames.Length - 1);
+                //string lastColumn = char.ConvertFromUtf32("A".ToCharArray()[0] + columnNames.Length - 1);
+                string lastColumn = IndexToExcelColumnName(columnNames.Length - 1);
 
                 // make the header range bold
                 headerRange = xlWk.get_Range("A1", lastColumn + "1");
@@ -115,5 +126,26 @@ namespace DatabaseToExcel
                 GC.Collect();
             }
         }
+
+
+
+        private static readonly char[] chars = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">Assumes 0 based index</param>
+        /// <returns></returns>
+        public static string IndexToExcelColumnName(int index)
+        {
+            // index -= 1; //adjust so it matches 0-indexed array rather than 1-indexed column
+
+            int quotient = index / 26;
+            if (quotient > 0)
+                return IndexToExcelColumnName(quotient) + chars[index % 26];
+            else
+                return chars[index % 26].ToString();
+        }
+        
     }
 }

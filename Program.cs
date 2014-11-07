@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,12 +20,31 @@ namespace DatabaseToExcel
         {
             if (Parser.ParseArgumentsWithUsage(args, parsedArgs))
             {
-                string connString = GetConnectionString(parsedArgs);
-                DataSet ds = GetData(parsedArgs.queryFile, connString);
-
-                CreateExcelFile(parsedArgs, ds);
-
+                try
+                {
+                    Log("Building Connection String");
+                    string connString = GetConnectionString(parsedArgs);
+                    Log("Fetching Data");
+                    DataSet ds = GetData(parsedArgs.queryFile, connString);
+                    Log("Creating Excel File");
+                    CreateExcelFile(parsedArgs, ds);
+                }
+                catch (Exception ex)
+                {
+                    Log("Error occured: " + ex.Message);
+                }
             }
+            else
+            {
+                Log("Invalid arguments");
+            }
+        }
+
+        private static void Log(string msg)
+        {
+            Console.WriteLine(msg);
+            Trace.WriteLine(msg);
+            Debug.WriteLine(msg);
         }
 
         private static void CreateExcelFile(AppArgs appArgs, DataSet ds)
@@ -76,6 +96,9 @@ namespace DatabaseToExcel
                     Utilities.RenderDataTableOnXlSheet(dt, worksheet, columnNames.ToArray(), columnNames.ToArray());
                 }
 
+                // delete output file if exists
+                if (File.Exists(appArgs.outputFile)) File.Delete(appArgs.outputFile);
+
                 workbook.SaveAs(appArgs.outputFile);
                 
                 app.Quit();
@@ -83,7 +106,7 @@ namespace DatabaseToExcel
             }
             catch (Exception e)
             {
-                Console.Write("Error");
+                Console.Write("Error: " + e.Message);
             }
             finally
             {
