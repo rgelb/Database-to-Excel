@@ -52,5 +52,11 @@ DatabaseToExcel.exe /s:MySqlBox /d:MyLocalDb /u:foo /p:bar /q:query.sql /o:out.x
 And then, the app generates an Excel file with named sheets:
 ![alt tag](https://raw.github.com/rgelb/Database-to-Excel/master/Extras/Images/ExcelMoBetta.png)
 
+Other command line switches:
+
+/i - Login via Windows Authentication
+/e - Launch file in Excel after creation
+
+
 
 

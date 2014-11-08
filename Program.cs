@@ -106,7 +106,10 @@ namespace DatabaseToExcel
                 workbook.SaveAs(appArgs.outputFile);
                 
                 app.Quit();
-                
+
+                if (appArgs.launchAfterCreation)
+                    Process.Start(appArgs.outputFile);
+
             }
             catch (Exception e)
             {
@@ -123,8 +126,10 @@ namespace DatabaseToExcel
 
         private static string GetConnectionString(AppArgs args)
         {
-            return string.Format("data source={0};initial catalog={1};user id={2};password={3}",
-                    args.server, args.database, args.user, args.password);
+            return args.integratedSecurity ? string.Format("data source={0};initial catalog={1};Integrated Security=SSPI",
+                                                           args.server, args.database)
+                                           : string.Format("data source={0};initial catalog={1};user id={2};password={3}",
+                                                           args.server, args.database, args.user, args.password);
         }
 
         private static DataSet GetData(string queryFile, string connString)
