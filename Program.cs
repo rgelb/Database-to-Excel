@@ -29,11 +29,13 @@ namespace DatabaseToExcel
                 catch (Exception ex)
                 {
                     Log("Error occured: " + ex.Message);
+                    Environment.Exit(1);
                 }
             }
             else
             {
                 Log("Invalid arguments");
+                Environment.Exit(1);
             }
         }
 
@@ -46,15 +48,19 @@ namespace DatabaseToExcel
 
         private static void CreateExcelFile(AppArgs appArgs, DataSet ds)
         {
+            Excel.Application app = null;
+            Excel.Workbook workbook = null;
+            Excel.Worksheet worksheet = null; 
+
             var sheetNames = new List<string>();
             if (appArgs.sheetFile.Length > 0 && File.Exists(appArgs.sheetFile))
                 sheetNames = File.ReadAllLines(appArgs.sheetFile).ToList();
 
             try
             {
-                var app = new Excel.Application {Visible = false};
-                var workbook = app.Workbooks.Add(1);
-                Excel.Worksheet worksheet;  //   = (Excel.Worksheet)workbook.Sheets[1];
+                app = new Excel.Application {Visible = false};
+                workbook = app.Workbooks.Add(1);
+                 //   = (Excel.Worksheet)workbook.Sheets[1];
 
                 for (int i = 0; i < ds.Tables.Count - 1; i++)
                     workbook.Sheets.Add();     
@@ -96,6 +102,9 @@ namespace DatabaseToExcel
             }
             finally
             {
+                Utilities.ReleaseComObject(worksheet);
+                Utilities.ReleaseComObject(workbook);
+                Utilities.ReleaseComObject(app);
             }
 
         }

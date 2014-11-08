@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-
-namespace DatabaseToExcel
+﻿namespace DatabaseToExcel
 {
     class AppArgs
     {
@@ -26,7 +20,7 @@ namespace DatabaseToExcel
         [Argument(ArgumentType.AtMostOnce, HelpText = "Sheet file to run")]
         public string sheetFile;
 
-        [Argument(ArgumentType.Required, HelpText = "Sheet file to run")]
+        [Argument(ArgumentType.Required, HelpText = "Output Excel File name")]
         public string outputFile;
         
 

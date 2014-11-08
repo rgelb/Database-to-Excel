@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace DatabaseToExcel
@@ -31,9 +26,9 @@ namespace DatabaseToExcel
                     // to the excel range for that column.
                     for (int i = 0; i < fieldNames.Length; i++)
                     {
-                        string[,] clnDataString = new string[dt.Rows.Count,1];
-                        int[,] clnDataInt = new int[dt.Rows.Count,1];
-                        double[,] clnDataDouble = new double[dt.Rows.Count,1];
+                        var clnDataString = new string[dt.Rows.Count,1];
+                        var clnDataInt = new int[dt.Rows.Count,1];
+                        var clnDataDouble = new double[dt.Rows.Count,1];
 
                         //string columnLetter = char.ConvertFromUtf32("A".ToCharArray()[0] + i);
                         string columnLetter = IndexToExcelColumnName(i);
@@ -61,8 +56,6 @@ namespace DatabaseToExcel
                                         case "DateTime":
                                             if (fieldNames[i].ToLower().Contains("time"))
                                                 clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortTimeString();
-                                            //else if (fieldNames[i].ToLower().Contains("date"))
-                                            //    clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToShortDateString();
                                             else
                                                 clnDataString[j, 0] = Convert.ToDateTime(dt.Rows[j][fieldNames[i]]).ToString();
 
@@ -106,12 +99,12 @@ namespace DatabaseToExcel
             }
             finally
             {
-                ReleaseObject(headerRange);
-                ReleaseObject(rngExcel);
+                ReleaseComObject(headerRange);
+                ReleaseComObject(rngExcel);
             }
         }
 
-        private static void ReleaseObject(object obj)
+        public static void ReleaseComObject(object obj)
         {
             try
             {
@@ -129,11 +122,8 @@ namespace DatabaseToExcel
         }
 
 
-
-        private static readonly char[] chars = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-
         /// <summary>
-        /// 
+        /// Converts an index to an Excel column name
         /// </summary>
         /// <param name="index">Assumes 0 based index</param>
         /// <returns></returns>
@@ -142,13 +132,12 @@ namespace DatabaseToExcel
             index++;
             int dividend = index;
             string columnName = String.Empty;
-            int modulo;
 
             while (dividend > 0)
             {
-                modulo = (dividend - 1) % 26;
+                int modulo = (dividend - 1) % 26;
                 columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
-                dividend = (int)((dividend - modulo) / 26);
+                dividend = (dividend - modulo) / 26;
             }
 
             return columnName;
