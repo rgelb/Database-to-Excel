@@ -8,7 +8,7 @@ Example command
 DatabaseToExcel.exe /s:MySqlBox /d:MyLocalDb /u:foo /p:bar /q:query.sql /o:out.xlsx
 ```
 
-This is the query that we ran:
+This is the query that we run:
 ```sh
   SELECT  TOP 10 ProposalID
   INTO    #pidsToGo
@@ -34,6 +34,7 @@ This is the query that we ran:
 ```
   
 The application then produces an Excel file with 2 worksheets.  
+
 ![alt tag](https://raw.github.com/rgelb/Database-to-Excel/master/Extras/Images/ExcelSimple.png)
 
 But we can make it prettier with named sheets.  To that end we can provide a named sheets file.  Example:
@@ -50,13 +51,14 @@ DatabaseToExcel.exe /s:MySqlBox /d:MyLocalDb /u:foo /p:bar /q:query.sql /o:out.x
 ```
 
 And then, the app generates an Excel file with named sheets:
+
 ![alt tag](https://raw.github.com/rgelb/Database-to-Excel/master/Extras/Images/ExcelMoBetta.png)
 
 Other command line switches:
-
+```sh
 /i - Login via Windows Authentication
 /e - Launch file in Excel after creation
-
+```
 
 
 
