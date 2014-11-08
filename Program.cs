@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace DatabaseToExcel
@@ -52,8 +53,10 @@ namespace DatabaseToExcel
             Excel.Workbook workbook = null;
             Excel.Worksheet worksheet = null; 
 
+            
+
             var sheetNames = new List<string>();
-            if (appArgs.sheetFile.Length > 0 && File.Exists(appArgs.sheetFile))
+            if (!string.IsNullOrWhiteSpace(appArgs.sheetFile) && File.Exists(appArgs.sheetFile))
                 sheetNames = File.ReadAllLines(appArgs.sheetFile).ToList();
 
             try
@@ -63,7 +66,7 @@ namespace DatabaseToExcel
                  //   = (Excel.Worksheet)workbook.Sheets[1];
 
                 for (int i = 0; i < ds.Tables.Count - 1; i++)
-                    workbook.Sheets.Add();     
+                    workbook.Sheets.Add(Missing.Value, workbook.Sheets[i + 1]);     
 
                 // now name them
                 for (int i = 0; i < sheetNames.Count; i++)
@@ -88,6 +91,15 @@ namespace DatabaseToExcel
                     Utilities.RenderDataTableOnXlSheet(dt, worksheet, columnNames.ToArray(), columnNames.ToArray());
                 }
 
+                // select the 1st worksheet
+                app.ActiveWorkbook.Sheets[1].Activate();
+
+
+                // fix up the output file.  If the path is not absolute, then Excel will save it in the Documents folder
+                // we want to save it in the current directory
+                if (!appArgs.outputFile.Contains(@"\"))
+                    appArgs.outputFile = Path.Combine(Environment.CurrentDirectory, appArgs.outputFile);
+                
                 // delete output file if exists
                 if (File.Exists(appArgs.outputFile)) File.Delete(appArgs.outputFile);
 

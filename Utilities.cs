@@ -61,8 +61,6 @@ namespace DatabaseToExcel
 
                                             break;
                                         default:
-                                            //if (dataTypeName != "String" && dataTypeName != "Decimal")
-                                            //    Debug.WriteLine(dataTypeName);
                                             clnDataString[j, 0] = dt.Rows[j][fieldNames[i]].ToString();
                                             break;
                                     }
