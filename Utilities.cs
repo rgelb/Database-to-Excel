@@ -75,7 +75,7 @@ namespace DatabaseToExcel
                         // set values in the sheet wholesale.
                         if (dataTypeName == "Int32")
                             rngExcel.set_Value(Missing.Value, clnDataInt);
-                        else if (dataTypeName == "Double")
+                        else if (dataTypeName == "Double" || dataTypeName == "Decimal")
                             rngExcel.set_Value(Missing.Value, clnDataDouble);
                         else
                             rngExcel.set_Value(Missing.Value, clnDataString);
